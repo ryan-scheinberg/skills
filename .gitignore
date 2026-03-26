@@ -1,7 +1,7 @@
 # Third-party skills (not mine)
 elevenlabs-agents/
-pydantic-ai-a2a/
 speech-to-text/
 text-to-speech/
+frontend-design/
 
 .DS_Store

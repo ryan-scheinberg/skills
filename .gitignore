@@ -3,5 +3,7 @@ elevenlabs-agents/
 speech-to-text/
 text-to-speech/
 frontend-design/
+skill-creator-anthropic/
+improve-skills/
 
 .DS_Store

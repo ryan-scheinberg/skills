@@ -1,11 +1,11 @@
 ---
 name: plan-to-slices
-description: Decompose a PROJECT_BRIEF.md into vertical, TDD-ready implementation slices. Each slice is independently buildable and testable, with tests defined before code. Use when user wants to break down a project into slices.
+description: Decompose a PROJECT_BRIEF.md into vertical, TDD-ready implementation slices. Each slice is independently demoable. Use when user wants to break down a project into slices.
 ---
 
 # Plan to Slices
 
-Read `PROJECT_BRIEF.md` and produce a directory slices/slice_#.md — a ordered sequence of vertical, TDD-ready implementation slices.
+Read `PROJECT_BRIEF.md` and produce `SLICES.md` — an ordered sequence of vertical, TDD-ready implementation slices as `##` sections in that single document.
 
 Always require a `PROJECT_BRIEF.md`. If one doesn't exist, tell the user to run `define-project` first.
 
@@ -15,16 +15,15 @@ Horizontal slicing (build the DB layer, then the API, then the UI) delays feedba
 
 ## Why TDD-ready
 
-A slice isn't ready to build until you can describe the tests you'd write first. If you can't articulate a failing test, the slice is too vague. The tests *are* the spec — they define what "done" means for the slice and force precision about inputs, outputs, and behavior.
+A slice isn't ready to build until you can state acceptance criteria you could verify. If you can't describe observable outcomes, the slice is too vague. The criteria define what "done" means and force precision about inputs, outputs, and behavior — the implementer turns them into tests and code.
 
 ## Process
 
 1. Read `PROJECT_BRIEF.md`. Understand scope, technical approach, MVP definition, and risks.
 2. If there's a codebase, explore it — understand module boundaries, existing test patterns, what's already there. This shapes where slices land.
 3. Identify the vertical slices (see slicing rules below).
-4. For each slice, define the tests you'd write first (see TDD structure below).
-5. Order slices by dependency and risk — build confidence early.
-6. Write a file for each slice that will be implemented by a tdd agent.
+4. Order slices by dependency and risk — build confidence early.
+5. For each slice, define acceptance criteria — observable, verifiable outcomes.
 
 ## Slicing Rules
 
@@ -36,22 +35,19 @@ A slice isn't ready to build until you can describe the tests you'd write first.
 - **Deployment is a slice when warranted** — pipeline config, environment setup, rollback plan. If the brief mentions deployment, it's a first-class slice.
 - **Each slice should take roughly the same effort** — if one slice is 10x bigger than the others, break it down further.
 
-## TDD-Ready — Not TDD-Done
+## Acceptance Criteria, Not Tests
 
-The slicer doesn't write tests. It describes the *behaviors* each slice must exhibit — concrete enough that an implementer can immediately start red-green-refactor without asking clarifying questions. Think of each entry as a one-line spec: what scenario, what action, what observable outcome.
+The slicer defines *what* each slice must achieve — observable, testable outcomes. The implementer decides *how* to test and build it (typically via TDD with red-green-refactor cycles). Keep acceptance criteria concrete enough that an implementer can start coding without asking clarifying questions.
 
-The implementer (human or AI agent) takes each behavior description and runs tiny TDD cycles against it — one failing test, minimal code to pass, refactor, next. They'll discover additional tests along the way. The slice just needs to give them a clear starting point and a finish line.
+Keeping slices focused matters for AI context too — each slice should be completable in a single agent command without losing track of what's been built and what's left. Our agents' ability to complete tdd code is strong. Don't underestimate and make tiny slices, but you can help agents by creating these useful vertical slices.
 
-Keeping slices focused matters for AI context too — each slice should be completable in a single agent session without losing track of what's been built and what's left. Our agents' ability to complete tdd code is strong, but you can help by creating these useful vertical slices.
+### What good acceptance criteria look like
 
-### Behavior categories to consider
+- Observable and verifiable — "endpoint returns 201 with user ID", not "user creation works"
+- Scoped to this slice — don't repeat criteria from other slices
+- Cover the important behaviors: happy path (always), input validation (when introducing interfaces), edge cases (when core to the slice), integration with prior slices (from slice 2 onward)
 
-- **Happy path**: the core behavior this slice delivers. Always present.
-- **Input validation**: what happens with bad/missing input. Include when the slice introduces a new interface.
-- **Edge cases**: boundary conditions, empty states, concurrent access. Include when they're core to the slice's purpose (not speculative).
-- **Integration**: does this slice work with what's already built? Include from slice 2 onward.
-
-Don't over-specify. 3-5 behavior descriptions per slice is typical. The goal is to define the boundary of "done" — not to write a test plan. The implementer will flesh these out into real tests and discover more during red-green-refactor.
+3-5 criteria per slice is typical. The goal is to define the boundary of "done" — the implementer will discover additional edge cases and tests during development.
 
 ## Output Format — SLICES.md
 
@@ -65,16 +61,16 @@ Don't over-specify. 3-5 behavior descriptions per slice is typical. The goal is 
 ### What this delivers
 One sentence: what a user/system can do after this slice ships.
 
-### Tests to write first
-1. **test_[descriptive_name]** — [what this test asserts]. [Setup] → [action] → [expected outcome].
-2. **test_[descriptive_name]** — ...
+### Acceptance criteria
+1. [Observable, testable outcome — e.g. "POST /users returns 201 with user ID"]
+2. [Another criterion]
 3. ...
 
 ### Implementation notes
 Key decisions, constraints, or patterns from the brief that apply here. What layers this touches.
 
 ### Done when
-- [ ] All tests pass
+- [ ] All acceptance criteria met
 - [ ] [Observable outcome — can demo X / can hit endpoint Y / logs show Z]
 
 ---
@@ -84,7 +80,7 @@ Key decisions, constraints, or patterns from the brief that apply here. What lay
 ### What this delivers
 ...
 
-### Tests to write first
+### Acceptance criteria
 ...
 
 ### Implementation notes
@@ -108,10 +104,10 @@ Key decisions, constraints, or patterns from the brief that apply here. What lay
 
 ## Quality Bar
 
+- Output is exactly one `SLICES.md` — no scattered slice files unless the user overrides
 - Every slice is vertical — no "build the data layer" or "set up auth middleware" slices that aren't independently demoable
-- Test specs are concrete enough that an implementer can write the test code without asking clarifying questions
-- Tests use the Arrange-Act-Assert / Given-When-Then pattern implicitly (setup → action → expected outcome)
+- Acceptance criteria are concrete and verifiable — an implementer can start building without asking clarifying questions
 - Slice 1 is genuinely thin — if it takes more than a day or two, it's too thick
 - Dependencies between slices are explicit
 - The slice plan is shorter and more actionable than the brief it came from
-- A developer reading SLICES.md knows exactly what to build first, what tests to write, and when they're done
+- A developer reading SLICES.md knows exactly what to build first, what "done" looks like, and what order to go in

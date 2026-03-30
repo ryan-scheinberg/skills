@@ -1,6 +1,6 @@
 ---
 name: complete-slice
-description: Implement a slice from SLICES.md end-to-end using TDD — code, infra, pipelines, whatever the slice requires. Reads the slice spec, then iterated RED-GREEN. Use when user wants to implement a slice or mentions "complete slice".
+description: Implement a vertical slice from SLICES.md end-to-end using TDD. Use when user wants to code a slice of a project or mentions "complete slice".
 ---
 
 # Complete Slice
@@ -14,7 +14,7 @@ Take a slice from `SLICES.md` and implement it. Each slice is a vertical, TDD-re
 Read `SLICES.md` and find the target slice (the user will tell you which one, or you pick the next unfinished slice in order). Understand:
 
 - **What this delivers** — the demoable outcome
-- **Tests to write first** — these are your implementation roadmap
+- **Acceptance criteria** — these define what "done" looks like
 - **Implementation notes** — constraints, patterns, dependencies
 - **Done when** — your exit criteria
 
@@ -30,11 +30,11 @@ Check what prior slices built. Your slice depends on their interfaces — make s
 
 ### 3. Plan the approach
 
-Map the slice's "tests to write first" to an implementation sequence. Each test-implementation pair is one TDD cycle.
+Map the slice's acceptance criteria to an implementation sequence. Each criterion may take one or more TDD cycles to satisfy.
 
 Decide:
 
-- Which test to write first (start with the one that proves the core approach for this slice)
+- Which criterion to tackle first (start with the one that proves the core approach for this slice)
 - What existing code you'll touch vs create
 - Where system boundaries are (what to mock vs use real implementations)
 
@@ -46,7 +46,7 @@ Follow red-green-refactor for each test you create for small vertical parts of t
 
 The loop:
 
-1. **Red** — write one failing test
+1. **Red** — write *one* failing test
 2. **Green** — write minimal code to make it pass
 3. **Refactor** — clean up while green. Extract duplication, simplify interfaces, deepen modules.
 4. Move to the next test.
@@ -57,7 +57,7 @@ Rules:
 - Tests verify behavior through public interfaces, not implementation details.
 - Tests should survive internal refactors.
 - Only mock at system boundaries (external APIs, databases, time, file system).
-- The slice's test list is a starting point — you'll discover additional tests during red-green-refactor. Write them as they come up.
+- The slice's acceptance criteria guide what to test — you'll discover additional tests during red-green-refactor. Write them as they come up.
 - Keep the code readable and clean.
 
 ### 5. Handle SRE concerns inline
@@ -76,7 +76,7 @@ If the slice's "done when" checklist mentions any of these, treat them as accept
 
 When all tests pass, walk the slice's "done when" checklist:
 
-- [ ] All specified tests pass
+- [ ] All acceptance criteria met and covered by passing tests
 - [ ] Observable outcomes work as described (can demo X, endpoint returns Y, logs show Z)
 - [ ] Code follows existing codebase conventions
 - [ ] No unrelated changes mixed in

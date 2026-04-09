@@ -169,10 +169,10 @@ The ideal SkillsCake pitch hits all four: "Upload your skill, wait six minutes, 
 | About page | `skillscake-web/app/about/page.tsx` | Product story, what/why/how |
 | Learn page | `skillscake-web/app/learn/page.tsx` | Educational — what skills are, why they matter |
 | Example pages | `skillscake-web/app/example/*/` | Before/after comparisons with real data |
-| Blog articles | `skillscake-product/marketing/medium/` | Technical and non-technical launch articles |
+| Blog articles | `skillscake-product/marketing/medium/` | Technical and non-technical launch articles; **Medium** is pasted/published manually (no new API tokens) |
 | Ad copy | `skillscake-product/marketing/ads/` | Google Ads, social ads, hooks |
 | Outreach emails | `skillscake-product/marketing/outreach/` | Founder-to-creator, beta invites |
-| Social posts | `skillscake-product/marketing/misc/` | LinkedIn, Reddit, Product Hunt |
+| Social posts | `skillscake-product/marketing/misc/` | X, Bluesky, LinkedIn, Reddit, Product Hunt (see production skill + Typefully) |
 | Content library | `skillscake-product/marketing/library/` | Published posts with frontmatter (date, channel, engagement). Source of truth for the ideation and production skills. |
 | Content calendar | `skillscake-product/marketing/calendar/` | Angle specs from ideation sessions. Consumed by the production skill. |
 | Seeds | `skillscake-product/marketing/seeds.md` | Raw founder notes. Consumed by the ideation skill. |

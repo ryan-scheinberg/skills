@@ -1,6 +1,6 @@
 ---
 name: skillscake-marketing-production
-description: Turn approved marketing angles into channel-ready drafts, publish them via Typefully (use the typefully skill + CLI) and Medium/Dev.to APIs, generate ad copy for Google Search and Reddit, and manage the content library. Handles the full production pipeline from angle spec to live post. Use when the user wants to draft posts, publish content, create ads, manage the content calendar, check what's been posted, or mentions "production," "drafts," "publish," "post," "schedule," "ads," or "content library." Use proactively after an ideation session produces angle files.
+description: Turn approved marketing angles into channel-ready drafts, publish via Typefully (X, LinkedIn, Bluesky) and Dev.to API when configured; Medium is manual paste in the editor (new integration tokens are not available). Generates ad copy and manages the content library. Use when the user wants to draft posts, publish content, create ads, manage the content calendar, check what's been posted, or mentions "production," "drafts," "publish," "post," "schedule," "ads," or "content library." Use proactively after an ideation session produces angle files.
 ---
 
 # SkillsCake Marketing Production
@@ -10,9 +10,9 @@ You run the second half of SkillsCake's marketing pipeline: turning structured a
 You work downstream of:
 1. **Angle files** produced by the ideation skill (`skillscake-marketing-ideation`), found in `skillscake-product/marketing/calendar/`
 2. **Brand voice rules** from the `skillscake-marketing` skill — read it before every production run. It contains the proof table, copy rules, anti-patterns, headline principles, and voice guidelines. You do not duplicate those rules here; you enforce them.
-3. **`typefully` skill** (official Typefully agent skill) — for **X and LinkedIn** publishing only. Read it before calling the Typefully CLI. It owns API/auth details, `drafts:*`, `queue:*`, `analytics:*`, `social-sets:*`, thread syntax, and scheduling. Install/update: `npx skills add typefully/agent-skills -y --agent cursor` (project) or `-g` for global. Skill path is usually `~/.cursor/skills/typefully` (symlink) or `skillscake/.agents/skills/typefully` when installed in-repo.
+3. **`typefully` skill** (official Typefully agent skill) — for **X, LinkedIn, and Bluesky** publishing. Read it before calling the Typefully CLI. It owns API/auth details, `drafts:*`, `queue:*`, `analytics:*`, `social-sets:*`, thread syntax, and scheduling. Install/update: `npx skills add typefully/agent-skills -y --agent cursor` (project) or `-g` for global. Skill path is usually `~/.cursor/skills/typefully` (symlink) or `skillscake/.agents/skills/typefully` when installed in-repo. **One social set** connects accounts (e.g. **@skillscake** on X, **Agent Horizon LLC** on LinkedIn); add **Bluesky** in the Typefully UI for that set if cross-posting. Use `--platform x` vs `--platform linkedin` vs `--platform bluesky`, or combine: `--platform x,bluesky` when the **same** copy ships to both (SkillsCake voice). `social-sets:list` / `social-sets:get` for IDs and URLs.
 
-Your outputs are: drafted posts (one file per post), published content (via API), ad copy variants, and content library entries.
+Your outputs are: drafted posts (one file per post), published content (Typefully / Dev.to API or manual where noted), ad copy variants, and content library entries.
 
 ## The product (quick reference)
 
@@ -37,7 +37,7 @@ For full proof data and claim rules, read `skillscake-marketing` — do not cite
 
 For each angle in the angle file:
 
-1. **Identify the target channels.** One angle may produce multiple drafts (e.g. an X thread + a LinkedIn post).
+1. **Identify the target channels.** One angle may produce multiple drafts (e.g. an X thread + LinkedIn, or one short post duplicated to **X + Bluesky** per [channel-specs.md](references/channel-specs.md)).
 2. **Write the draft** following the channel specs in [channel-specs.md](references/channel-specs.md) and the brand rules in `skillscake-marketing`.
 3. **Weave in the human detail** from the angle spec. This is the specific story, number, opinion, or admission that makes the content non-generic. It should appear naturally in the post, not feel bolted on. If the angle spec says "STORY: the deploy broke at 2am" — that story should be the backbone of the post, not a parenthetical.
 4. **Save each draft** to `skillscake-product/marketing/library/drafts/` as a markdown file.
@@ -49,7 +49,7 @@ Filename: `YYYY-MM-DD-channel-slug.md` (e.g. `2026-04-09-x-cursor-rules-thread.m
 ```markdown
 ---
 date: 2026-04-09
-channel: x | linkedin | medium | devto
+channel: x | bluesky | linkedin | medium | devto
 brand: skillscake | agenthorizon
 avatar: cursor-power-users | claude-code-builders | indie-hackers | teams | hobbyists | non-technical
 angle_ref: calendar/2026-W15-batch.md#angle-3
@@ -95,16 +95,17 @@ After drafting all posts for the batch:
 
 Publish all approved drafts. This is your job — Ryan doesn't touch the UIs.
 
-#### X and LinkedIn (via Typefully)
+#### X, LinkedIn, Bluesky (via Typefully)
 
-Typefully is the scheduling/publishing tool for X and LinkedIn. **Do not invent or restate raw HTTP calls here.** Follow the **`typefully`** skill (see `typefully/SKILL.md` next to this skill) and run its CLI: `<skill-path>/scripts/typefully.js` (or `typefully.js` via the paths in that skill). Official API reference: [typefully.com/docs/api](https://typefully.com/docs/api).
+Typefully is the scheduling/publishing tool for these networks. **Do not invent or restate raw HTTP calls here.** Follow the **`typefully`** skill (see `typefully/SKILL.md` next to this skill) and run its CLI: `<skill-path>/scripts/typefully.js` (or `typefully.js` via the paths in that skill). Official API reference: [typefully.com/docs/api](https://typefully.com/docs/api).
 
-**Auth (same as the typefully skill):** `TYPEFULLY_API_KEY`, `~/.config/typefully/config.json`, or project `.typefully/config.json` — priority order is documented in the typefully skill.
+**Auth (same as the typefully skill):** `TYPEFULLY_API_KEY`, or JSON at **`~/.config/typefully/config.json`** with `{"apiKey":"..."}` (not a plain file at `~/.config/typefully` — that path must be a **directory** containing `config.json`), or project `.typefully/config.json`. Priority order is in the typefully skill.
 
 **SkillsCake-specific (this skill owns voice, not mechanics):**
-- **X** — SkillsCake brand voice; **LinkedIn** — Agent Horizon voice (see [channel-specs.md](references/channel-specs.md)).
-- **One draft, multiple platforms** when X + LinkedIn differ: use the typefully skill’s **single-draft** pattern (`drafts:create` then `drafts:update` with another `--platform` / `--text`), not two unrelated drafts.
-- **Threads:** convert markdown draft text to the thread format the typefully CLI expects (see **`---` line splits** in the typefully skill).
+- **X, Bluesky** — SkillsCake brand voice; **LinkedIn** — Agent Horizon voice (see [channel-specs.md](references/channel-specs.md)).
+- **Copy once, post wide:** When the angle is a short post (not a LI-specific story), prefer **one** Typefully draft with `--platform x,bluesky` and the same `--text` (after Ryan connects Bluesky in Typefully). UTM on links: use `utm_source` matching the platform you care to attribute, or separate links per channel if you need clean attribution.
+- **One draft, different text** when X + LinkedIn differ: use the typefully skill’s **single-draft** pattern (`drafts:create` then `drafts:update` with another `--platform` / `--text`), not two unrelated drafts.
+- **X threads:** convert markdown draft text to the format the typefully CLI expects (see **`---` line splits** in the typefully skill).
 - **Schedule:** `next-free-slot` or an explicit ISO time per the typefully skill unless the angle file specifies a date.
 - **After scheduling:** log draft id and `https://typefully.com/?a=<social_set_id>&d=<draft_id>` (see typefully skill) in the library frontmatter.
 
@@ -112,21 +113,16 @@ Typefully is the scheduling/publishing tool for X and LinkedIn. **Do not invent 
 
 If Typefully is not configured or the CLI fails, output the drafts in a format Ryan can paste: one file per post with clear channel labels and copy-paste-ready text. Don’t block the pipeline on API issues.
 
-#### Medium
+#### Medium (manual by default)
 
-**API integration:**
-- Medium API: `https://api.medium.com/v1/`
-- Auth: Integration token in `Authorization: Bearer <token>`
-- Get user ID: `GET /me`
-- Create post: `POST /users/{userId}/posts` with `title`, `contentFormat: "markdown"`, `content` (the article body), `publishStatus: "draft"` (always draft first — Ryan can publish from Medium UI if he prefers)
-- Set `canonicalUrl` to empty (Medium IS the blog, no canonical elsewhere)
+**Medium no longer issues new integration tokens** for the publishing API, so assume **no `MEDIUM_TOKEN`**. Treat Medium like a normal editor workflow.
 
 **Workflow:**
-1. Format the article as clean markdown (Medium imports it well)
-2. Post as draft to Medium
-3. Tell Ryan the draft is in Medium's UI for final review
+1. Finish the article as markdown in `library/drafts/` (or `skillscake-product/marketing/medium/` if you keep articles there).
+2. Ryan **pastes** into Medium’s editor (or imports markdown if the UI allows), then publishes or saves as draft on medium.com.
+3. After it’s live, set `medium_url` in the library entry.
 
-If the Medium API is not configured, save the article as a standalone markdown file ready for manual paste.
+**Legacy API (only if you still have an old integration token):** `https://api.medium.com/v1/` — `Authorization: Bearer`, `POST /users/{userId}/posts`, `publishStatus: "draft"`. Do not block on this path for new setups.
 
 #### Dev.to
 
@@ -149,9 +145,9 @@ All API keys should be stored in environment variables or a `.env` file that is 
 
 | Service | Env var | Where to get it |
 |---------|---------|-----------------|
-| Typefully | `TYPEFULLY_API_KEY` | [typefully.com/?settings=api](https://typefully.com/?settings=api) — use the **`typefully`** skill + CLI for all commands; see also `~/.config/typefully/config.json` |
-| Medium | `MEDIUM_TOKEN` | medium.com → Settings → Integration tokens |
-| Dev.to | `DEVTO_API_KEY` | dev.to → Settings → Extensions → DEV API Keys |
+| Typefully | `TYPEFULLY_API_KEY` | [typefully.com/?settings=api](https://typefully.com/?settings=api) — use the **`typefully`** skill + CLI; global file is **`~/.config/typefully/config.json`** (JSON `apiKey`, not a bare file named `typefully`) |
+| Medium | (none for new accounts) | **Manual publish.** Legacy `MEDIUM_TOKEN` only if you already had an integration token; Medium stopped issuing new ones. |
+| Dev.to | `DEVTO_API_KEY` | dev.to → Settings → Extensions → DEV API Keys. **Not** a plain file at `~/.config/dev.to` — use env, or `~/.config/devto/config.json` with `{"apiKey":"..."}` and `export DEVTO_API_KEY=$(jq -r .apiKey ~/.config/devto/config.json)` (or paste into project `.env`) |
 
 ### Step 5: Update the content library
 
@@ -163,6 +159,7 @@ published_date: 2026-04-09
 typefully_id: abc123  # if applicable
 medium_url: https://medium.com/...  # if applicable
 devto_url: https://dev.to/...  # if applicable
+bluesky_url: https://...  # if applicable
 ```
 
 This is how the content library accumulates. The ideation skill reads these files to suggest repeats and remixes. Keep them accurate.
@@ -323,7 +320,7 @@ All links in scheduled posts and ads should include UTM parameters for attributi
 
 | Parameter | Values |
 |-----------|--------|
-| `utm_source` | `twitter`, `linkedin`, `medium`, `devto`, `google`, `reddit`, `youtube` |
+| `utm_source` | `twitter`, `bluesky`, `linkedin`, `medium`, `devto`, `google`, `reddit`, `youtube` |
 | `utm_medium` | `organic`, `paid`, `social` |
 | `utm_campaign` | Descriptive slug: `launch-apr-2026`, `cursor-users`, `skill-upgrade` |
 | `utm_content` | Variant identifier: `hook-a`, `thread-1`, `rsa-v3` |
@@ -338,7 +335,7 @@ The library at `skillscake-product/marketing/library/` is the single source of t
 
 ```yaml
 date: 2026-04-09
-channel: x | linkedin | medium | devto
+channel: x | bluesky | linkedin | medium | devto
 brand: skillscake | agenthorizon
 avatar: cursor-power-users
 angle_ref: calendar/2026-W15-batch.md#angle-3
@@ -370,7 +367,7 @@ killed (delete the file or move to library/killed/)
 
 - **draft:** Agent generated, awaiting human review
 - **approved:** Human reviewed and approved, ready for scheduling
-- **scheduled:** Pushed to Typefully/Medium/Dev.to as a scheduled or draft post
+- **scheduled:** Pushed to Typefully or Dev.to API, or ready for Ryan to paste (Medium manual)
 - **live:** Confirmed published
 - **killed:** Human rejected during review. Keep these — they're signal for what not to repeat
 
@@ -395,7 +392,7 @@ The brand skill says what to say and how to say it. This production skill says w
 - **API fails:** If any publishing API fails, save the content as a ready-to-paste file and tell Ryan. Don't silently drop content.
 - **Missing angle file:** If there's no angle file in the calendar directory, tell Ryan to run an ideation session first (or offer to run a lightweight one yourself using only the library and seeds).
 - **Empty library:** During bootstrap, the library is empty. That's fine — just draft from angles without library cross-referencing.
-- **Rate limits:** Typefully, Medium, and Dev.to all have rate limits. Space API calls. For Typefully, follow pacing and batching guidance in the **`typefully`** skill. If you hit a limit, queue the remaining posts and tell Ryan when they'll go out.
+- **Rate limits:** Typefully and Dev.to APIs have rate limits; space calls. Medium is manual (no API). For Typefully, follow the **`typefully`** skill. If you hit a limit, queue the remaining posts and tell Ryan when they'll go out.
 
 ## Bootstrap mode (first 2 weeks)
 
@@ -404,5 +401,5 @@ During bootstrap, the founder is investing 2-3 hours/day to seed the library:
 - Expect larger angle batches (20-30 angles per ideation session)
 - Generate more drafts per day to fill the pipeline
 - Mark high-performing pieces as `repeat_eligible: true` aggressively to give the reuse engine material quickly
-- Don't skip any channels — the goal is to establish presence everywhere in the first two weeks
+- Don’t skip core channels — the goal is to establish presence everywhere in the first two weeks (include **X + Bluesky** when Typefully is connected, plus LinkedIn, Medium, Dev.to as angles allow)
 - Ad copy generation can wait until week 3-4 (focus on organic first)

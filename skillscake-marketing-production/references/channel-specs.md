@@ -39,7 +39,7 @@ skillscake.com/example/clear-plan
 - **Tweet 1 (hook):** Must stand alone. If someone only sees tweet 1, they should understand the value prop or be compelled to read more. No "Thread:" or "1/" prefix.
 - **Tweet 2-N:** One idea per tweet. Each should make sense if read in isolation (people scroll in and out of threads).
 - **Last tweet:** CTA with link. Keep it short.
-- **Separator in draft files:** Use `\n\n\n\n` (4 newlines) between tweets. This is what Typefully uses to split threads.
+- **Separator in draft files / Typefully:** Use a line with only `---` between posts (see **`typefully`** skill). The same short post can also ship to **Bluesky** when cross-posting (see Bluesky section).
 
 **Thread structure patterns that work:**
 - Problem → insight → proof → CTA
@@ -55,13 +55,24 @@ skillscake.com/example/clear-plan
 
 ---
 
+## Bluesky — SkillsCake brand
+
+Same **product voice** as X. Default: **same copy** as X for single posts.
+
+- **Max length:** 300 characters per post (Typefully). X posts (≤280) usually fit unchanged.
+- **Audience:** Often dev- and OSS-adjacent; still avoid jargon walls.
+- **Links / UTMs:** `utm_source=bluesky`.
+- **When to post:** Connect **Bluesky** in Typefully; `--platform bluesky` or `x,bluesky` for one draft with the same `--text` when content matches.
+
+---
+
 ## LinkedIn — Agent Horizon brand
 
 ### Identity shift
 
 On LinkedIn, the posting brand is **Agent Horizon**, not SkillsCake. The framing is "a product we built" — SkillsCake is referenced as a case study, not as the main character.
 
-| SkillsCake voice (X/Medium/Dev.to) | Agent Horizon voice (LinkedIn) |
+| SkillsCake voice (X/Bluesky/Medium/Dev.to) | Agent Horizon voice (LinkedIn) |
 |-------------------------------------|-------------------------------|
 | "We upgraded a skill from 0.14 to 0.79" | "We built a tool that takes a rough skill file and returns one that scores 0.79" |
 | "Upload your skill" | "We wanted to solve the skill quality problem, so we built SkillsCake" |
@@ -108,6 +119,8 @@ Excited to announce SkillsCake! 🎂 Our AI-powered platform optimizes your agen
 ---
 
 ## Medium — SkillsCake brand
+
+**Publishing:** Draft in markdown here; **post manually** on Medium (new integration tokens for the API are not issued). Paste into the Medium editor or import if supported.
 
 ### Format
 
@@ -181,14 +194,15 @@ Same topic can appear on both, but the article should be rewritten for each audi
 
 ## Channel-specific rules summary
 
-| Rule | X | LinkedIn | Medium | Dev.to |
-|------|---|----------|--------|--------|
-| Brand | SkillsCake | Agent Horizon | SkillsCake | SkillsCake |
-| Max length | 280/tweet | 3,000 chars | 2,000 words | 1,500 words |
-| Links in body | Yes | No (put in comment) | Yes | Yes |
-| Hashtags | 0-2 | 3-5 | Tags (5) | Tags (4) |
-| Em dashes | No | No | No | No |
-| Code blocks | Rare | Never | Sometimes | Heavy |
-| Reading level | 3rd grade | 3rd grade | 5th grade OK | 5th grade OK |
-| CTA style | Direct link | "Link in comments" | Soft end-of-article | Soft end-of-article |
-| Post frequency | 5-8/day | 1-2/day | 2-3/week | 1-2/week |
+| Rule | X | Bluesky | LinkedIn | Medium | Dev.to |
+|------|---|---------|----------|--------|--------|
+| Brand | SkillsCake | SkillsCake | Agent Horizon | SkillsCake | SkillsCake |
+| Max length | 280/tweet | 300/post | 3,000 chars | 2,000 words | 1,500 words |
+| Links in body | Yes | Yes | No (put in comment) | Yes | Yes |
+| Hashtags | 0-2 | 0-2 | 3-5 | Tags (5) | Tags (4) |
+| Em dashes | No | No | No | No | No |
+| Code blocks | Rare | Rare | Never | Sometimes | Heavy |
+| Reading level | 3rd grade | 3rd grade | 3rd grade | 5th grade OK | 5th grade OK |
+| CTA style | Direct link | Direct link | "Link in comments" | Soft end-of-article | Soft end-of-article |
+| Post frequency | 5-8/day | same as X when cross-posting | 1-2/day | 2-3/week | 1-2/week |
+| Typefully | Yes | Yes | Yes | No (Medium: manual) | No (Dev.to API) |

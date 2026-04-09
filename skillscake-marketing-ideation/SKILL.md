@@ -72,6 +72,7 @@ Use their language. Not yours.
 | Channel | Brand | Tone |
 |---------|-------|------|
 | X | SkillsCake | Direct product voice. Punchy, specific, dev-aware but not dev-exclusive. |
+| Bluesky | SkillsCake | Same voice as X. Often **same copy** as X (Typefully cross-post). Dev-adjacent audience. |
 | LinkedIn | Agent Horizon | Frames SkillsCake as "a product we built." Building-in-public, founder energy. Slightly more reflective. |
 | Medium | SkillsCake | Thought leadership and product stories. Longer, still direct, no throat-clearing. |
 | Dev.to | SkillsCake | Tutorials and how-tos. Code blocks, step-by-step, actionable. |
@@ -202,7 +203,7 @@ new_angles: 13
 ### Angle 1: [short title]
 
 - **Idea:** [one sentence]
-- **Channels:** X, LinkedIn
+- **Channels:** X, Bluesky, LinkedIn
 - **Avatar:** Cursor power users
 - **Human detail:** [the specific thing only Ryan knows]
 - **Proof:** 0.14 → 0.79 in six minutes (clear-plan example)

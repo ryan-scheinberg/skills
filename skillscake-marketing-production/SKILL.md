@@ -1,6 +1,6 @@
 ---
 name: skillscake-marketing-production
-description: Turn approved marketing angles into channel-ready drafts, publish via Typefully (X, LinkedIn, Bluesky) and Dev.to API when configured; Medium is manual paste in the editor (new integration tokens are not available). Generates ad copy and manages the content library. Use when the user wants to draft posts, publish content, create ads, manage the content calendar, check what's been posted, or mentions "production," "drafts," "publish," "post," "schedule," "ads," or "content library." Use proactively after an ideation session produces angle files.
+description: Turn approved marketing angles into channel-ready drafts, publish via Typefully (X, LinkedIn, Bluesky) and Dev.to API when configured; Medium is always manual (paste in Medium’s editor). Generates ad copy and manages the content library. Use when the user wants to draft posts, publish content, create ads, manage the content calendar, check what's been posted, or mentions "production," "drafts," "publish," "post," "schedule," "ads," or "content library." Use proactively after an ideation session produces angle files.
 ---
 
 # SkillsCake Marketing Production
@@ -113,16 +113,12 @@ Typefully is the scheduling/publishing tool for these networks. **Do not invent 
 
 If Typefully is not configured or the CLI fails, output the drafts in a format Ryan can paste: one file per post with clear channel labels and copy-paste-ready text. Don’t block the pipeline on API issues.
 
-#### Medium (manual by default)
-
-**Medium no longer issues new integration tokens** for the publishing API, so assume **no `MEDIUM_TOKEN`**. Treat Medium like a normal editor workflow.
+#### Medium (manual only)
 
 **Workflow:**
 1. Finish the article as markdown in `library/drafts/` (or `skillscake-product/marketing/medium/` if you keep articles there).
 2. Ryan **pastes** into Medium’s editor (or imports markdown if the UI allows), then publishes or saves as draft on medium.com.
 3. After it’s live, set `medium_url` in the library entry.
-
-**Legacy API (only if you still have an old integration token):** `https://api.medium.com/v1/` — `Authorization: Bearer`, `POST /users/{userId}/posts`, `publishStatus: "draft"`. Do not block on this path for new setups.
 
 #### Dev.to
 
@@ -146,7 +142,7 @@ All API keys should be stored in environment variables or a `.env` file that is 
 | Service | Env var | Where to get it |
 |---------|---------|-----------------|
 | Typefully | `TYPEFULLY_API_KEY` | [typefully.com/?settings=api](https://typefully.com/?settings=api) — use the **`typefully`** skill + CLI; global file is **`~/.config/typefully/config.json`** (JSON `apiKey`, not a bare file named `typefully`) |
-| Medium | (none for new accounts) | **Manual publish.** Legacy `MEDIUM_TOKEN` only if you already had an integration token; Medium stopped issuing new ones. |
+| Medium | — | **Manual only** (paste/publish on medium.com; no API in this workflow). |
 | Dev.to | `DEVTO_API_KEY` | dev.to → Settings → Extensions → DEV API Keys. **Not** a plain file at `~/.config/dev.to` — use env, or `~/.config/devto/config.json` with `{"apiKey":"..."}` and `export DEVTO_API_KEY=$(jq -r .apiKey ~/.config/devto/config.json)` (or paste into project `.env`) |
 
 ### Step 5: Update the content library

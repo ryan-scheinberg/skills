@@ -120,7 +120,7 @@ Excited to announce SkillsCake! 🎂 Our AI-powered platform optimizes your agen
 
 ## Medium — SkillsCake brand
 
-**Publishing:** Draft in markdown here; **post manually** on Medium (new integration tokens for the API are not issued). Paste into the Medium editor or import if supported.
+**Publishing:** Draft in markdown here; **post manually** in Medium’s editor (paste or import if supported).
 
 ### Format
 

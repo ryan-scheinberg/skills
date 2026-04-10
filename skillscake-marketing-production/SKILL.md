@@ -31,7 +31,8 @@ For full proof data and claim rules, read `skillscake-marketing` — do not cite
 1. Read the latest angle file from `skillscake-product/marketing/calendar/`
 2. Read `skillscake-marketing` (the brand/voice skill) for copy rules
 3. Read [channel-specs.md](references/channel-specs.md) for format constraints
-4. Scan the content library (`skillscake-product/marketing/library/`) for recent posts on similar angles — check tone consistency and avoid accidental near-duplicates within the same week (deliberate repeats from the angle spec are fine)
+4. Scan **`library/live/`** for near-duplicates on similar angles. Deliberate repeats from the angle spec are fine
+5. **Schedule:** If the angle file has `earliest_publish` and `latest_publish`, spread `scheduled_for` dates evenly across that window. Do not schedule anything before `earliest_publish` or after `latest_publish`. Ryan adjusts dates during review. Medium is always manual (founder pastes); never schedule Medium via Typefully.
 
 ### Step 2: Draft (one file per post)
 
@@ -49,16 +50,19 @@ Filename: `YYYY-MM-DD-channel-slug.md` (e.g. `2026-04-09-x-cursor-rules-thread.m
 ```markdown
 ---
 date: 2026-04-09
-channel: x | bluesky | linkedin | medium | devto
-brand: skillscake | agenthorizon
-avatar: cursor-power-users | claude-code-builders | indie-hackers | teams | hobbyists | non-technical
+scheduled_for: 2026-04-13
+channel: x
+typefully_platforms: x,bluesky
+brand: skillscake
 angle_ref: calendar/2026-W15-batch.md#angle-3
-status: draft
-reuse_of: library/2026-03-25-cursor-rules-thread.md  # only if repeat/remix
 ---
 
-[Post content here — the actual text that gets published]
+[Post content here — the exact text that gets published. Do not rewrite during scheduling.]
 ```
+
+Keep frontmatter minimal: `date`, `scheduled_for`, `channel`, `brand`, `angle_ref`, and `typefully_platforms` (when cross-posting). Add `reuse_of` only for repeats/remixes. No `status`, `avatar`, or bookkeeping timestamps — the folder is the state (`drafts/` = WIP, `live/` = shipped, `killed/` = rejected).
+
+When drafting, set **`scheduled_for`** by spreading posts evenly between `earliest_publish` and `latest_publish`. Ryan adjusts dates during review. **`scheduled_for` on disk is authoritative** — production reads it before every Typefully call, never from memory.
 
 #### Writing rules (enforced from skillscake-marketing, repeated here because they're non-negotiable)
 
@@ -88,12 +92,14 @@ After drafting all posts for the batch:
 
 1. Tell Ryan how many drafts are ready and where they are
 2. List them: filename, channel, one-line summary of the angle
-3. Ryan will review: **kill** (delete the file), **edit** (modify inline), or **approve** (set status to `approved`)
-4. Wait for Ryan's feedback before publishing anything
+3. Ryan will review: **kill** (delete the file), **edit** (change copy or `scheduled_for` inline), or **approve** (say "all set" or similar)
+4. Wait for Ryan's go-ahead before scheduling anything
 
-### Step 4: Publish
+### Step 4: Re-read drafts, then publish
 
-Publish all approved drafts. This is your job — Ryan doesn't touch the UIs.
+**Before any Typefully or API call, re-read every draft file from disk.** The founder edits drafts between the review step and the publish step: changing copy, moving `scheduled_for` dates, deleting killed files. If you skip this re-read, you will publish stale content on wrong dates. This caused a production mistake and cost manual audit time.
+
+Publish all approved (non-killed) drafts. This is your job — Ryan doesn't touch the UIs.
 
 #### X, LinkedIn, Bluesky (via Typefully)
 
@@ -106,8 +112,8 @@ Typefully is the scheduling/publishing tool for these networks. **Do not invent 
 - **Copy once, post wide:** When the angle is a short post (not a LI-specific story), prefer **one** Typefully draft with `--platform x,bluesky` and the same `--text` (after Ryan connects Bluesky in Typefully). UTM on links: use `utm_source` matching the platform you care to attribute, or separate links per channel if you need clean attribution.
 - **One draft, different text** when X + LinkedIn differ: use the typefully skill’s **single-draft** pattern (`drafts:create` then `drafts:update` with another `--platform` / `--text`), not two unrelated drafts.
 - **X threads:** convert markdown draft text to the format the typefully CLI expects (see **`---` line splits** in the typefully skill).
-- **Schedule:** `next-free-slot` or an explicit ISO time per the typefully skill unless the angle file specifies a date.
-- **After scheduling:** log draft id and `https://typefully.com/?a=<social_set_id>&d=<draft_id>` (see typefully skill) in the library frontmatter.
+- **Schedule — `scheduled_for` in draft frontmatter is authoritative.** When scheduling to Typefully, **read each draft file's `scheduled_for` field** and convert it to an ISO datetime for `--schedule`. Never hardcode dates from the calendar table or from memory. The founder edits `scheduled_for` during review; those edits are the final word. If a draft has no `scheduled_for`, use `next-free-slot`. After scheduling, **re-read the draft file** one more time to confirm `scheduled_for` still matches the Typefully `scheduled_date` in the API response. If they differ, reschedule immediately.
+- **After scheduling:** add `typefully_id` and `typefully_url` to the file's frontmatter, then **move it to `library/live/`** (see Step 5).
 
 **Engagement / queue:** for “what’s scheduled?” or X analytics ranges, use the **`typefully`** skill’s `analytics` / `queue` commands instead of re-deriving API shapes here.
 
@@ -118,7 +124,7 @@ If Typefully is not configured or the CLI fails, output the drafts in a format R
 **Workflow:**
 1. Finish the article as markdown in `library/drafts/` (or `skillscake-product/marketing/medium/` if you keep articles there).
 2. Ryan **pastes** into Medium’s editor (or imports markdown if the UI allows), then publishes or saves as draft on medium.com.
-3. After it’s live, set `medium_url` in the library entry.
+3. After it’s live, set `medium_url` on the matching file in **`library/live/`**.
 
 #### Dev.to
 
@@ -145,20 +151,26 @@ All API keys should be stored in environment variables or a `.env` file that is 
 | Medium | — | **Manual only** (paste/publish on medium.com; no API in this workflow). |
 | Dev.to | `DEVTO_API_KEY` | dev.to → Settings → Extensions → DEV API Keys. **Not** a plain file at `~/.config/dev.to` — use env, or `~/.config/devto/config.json` with `{"apiKey":"..."}` and `export DEVTO_API_KEY=$(jq -r .apiKey ~/.config/devto/config.json)` (or paste into project `.env`) |
 
-### Step 5: Update the content library
+### Step 5: Move to `library/live/`
 
-After publishing (or after manual posting is confirmed), move the draft from `library/drafts/` to `library/` and update the frontmatter:
+After scheduling in Typefully:
 
-```yaml
-status: live
-published_date: 2026-04-09
-typefully_id: abc123  # if applicable
-medium_url: https://medium.com/...  # if applicable
-devto_url: https://dev.to/...  # if applicable
-bluesky_url: https://...  # if applicable
-```
+1. Add `typefully_id` and `typefully_url` to the file.
+2. **Move** the file from `library/drafts/` to **`library/live/`** (same filename).
+3. Move killed drafts to `library/killed/`.
+4. Leave `drafts/` empty when the batch is done.
 
-This is how the content library accumulates. The ideation skill reads these files to suggest repeats and remixes. Keep them accurate.
+That is it. No status field. If the file is in `live/`, it is in the pipeline. Ideation mines `library/live/` for history, repeats, and remixes. When Ryan adds engagement notes later, put them directly in the file's frontmatter (`engagement`, `engagement_quality`, `repeat_eligible`).
+
+### Step 6: Tell Ryan what to do manually
+
+After scheduling, **always** end with a short checklist of things only Ryan can do. Examples:
+
+- **LinkedIn first comment:** "Post the link as first comment on LinkedIn Monday Apr 13 around 9 AM ET" (Typefully cannot do this).
+- **Medium:** "Paste the article into Medium by [date]."
+- **Engagement:** "Reply to any responses on X Monday afternoon."
+
+Do not assume Ryan knows what is manual. Spell it out each time.
 
 ## Repeats and remixes
 
@@ -170,7 +182,7 @@ When the angle file includes repeat or remix angles:
 
 **Cross-channel adaptation:** An angle that worked on X might be adapted for LinkedIn with an AH-brand voice shift. The core idea stays; the framing changes.
 
-Track reuse in the frontmatter: `reuse_of: library/original-filename.md`.
+Track reuse in the frontmatter: `reuse_of: library/live/original-filename.md`.
 
 ## Ad copy generation
 
@@ -321,53 +333,36 @@ All links in scheduled posts and ads should include UTM parameters for attributi
 | `utm_campaign` | Descriptive slug: `launch-apr-2026`, `cursor-users`, `skill-upgrade` |
 | `utm_content` | Variant identifier: `hook-a`, `thread-1`, `rsa-v3` |
 
-## Content library maintenance
+## Content library layout
 
-The library at `skillscake-product/marketing/library/` is the single source of truth for what's been published.
+| Path | What goes here |
+|------|---------------|
+| `library/drafts/` | WIP — new drafts before scheduling |
+| **`library/live/`** | All shipped posts (scheduled or published). **Ideation mines here.** No `*.md` at `library/` root. |
+| `library/killed/` | Rejected drafts |
 
-**File naming:** `YYYY-MM-DD-channel-slug.md` (e.g. `2026-04-09-x-cursor-rules-thread.md`)
+**File naming:** `YYYY-MM-DD-channel-slug.md`. Same name moves `drafts/` → `live/`.
 
-**Required frontmatter fields:**
+**Frontmatter — keep it minimal.** The folder is the state, not a `status` field.
 
 ```yaml
 date: 2026-04-09
-channel: x | bluesky | linkedin | medium | devto
-brand: skillscake | agenthorizon
-avatar: cursor-power-users
+scheduled_for: 2026-04-13
+channel: x
+typefully_platforms: x,bluesky
+brand: skillscake
 angle_ref: calendar/2026-W15-batch.md#angle-3
-status: draft | approved | scheduled | live
+typefully_id: 8682068
+typefully_url: https://typefully.com/?d=8682068&a=296980
 ```
 
-**Optional frontmatter fields:**
+**Optional** (add when you have the data, not preemptively):
 
 ```yaml
-reuse_of: library/original-filename.md
-published_date: 2026-04-09
-typefully_id: abc123
-medium_url: https://medium.com/...
-devto_url: https://dev.to/...
-engagement: "42 likes, 8 replies, 2 substantive conversations"
-engagement_quality: high | medium | low
+reuse_of: library/live/original-filename.md
+engagement: "42 likes, 8 replies"
 repeat_eligible: true
 ```
-
-**Engagement updates:** When Ryan shares engagement data (or you can read it from platform analytics), update the `engagement` and `engagement_quality` fields. The ideation skill uses `engagement_quality: high` + `repeat_eligible: true` to surface repeat candidates.
-
-## Status workflow
-
-```
-draft → approved → scheduled → live
-  ↓
-killed (delete the file or move to library/killed/)
-```
-
-- **draft:** Agent generated, awaiting human review
-- **approved:** Human reviewed and approved, ready for scheduling
-- **scheduled:** Pushed to Typefully or Dev.to API, or ready for Ryan to paste (Medium manual)
-- **live:** Confirmed published
-- **killed:** Human rejected during review. Keep these — they're signal for what not to repeat
-
-Automation only moves `approved → scheduled`. Humans move `draft → approved` and can kill at any stage.
 
 ## Working with the brand skill
 
@@ -387,7 +382,7 @@ The brand skill says what to say and how to say it. This production skill says w
 
 - **API fails:** If any publishing API fails, save the content as a ready-to-paste file and tell Ryan. Don't silently drop content.
 - **Missing angle file:** If there's no angle file in the calendar directory, tell Ryan to run an ideation session first (or offer to run a lightweight one yourself using only the library and seeds).
-- **Empty library:** During bootstrap, the library is empty. That's fine — just draft from angles without library cross-referencing.
+- **Empty `library/live/`:** During bootstrap, nothing is published yet. That's fine — draft from angles without mining history.
 - **Rate limits:** Typefully and Dev.to APIs have rate limits; space calls. Medium is manual (no API). For Typefully, follow the **`typefully`** skill. If you hit a limit, queue the remaining posts and tell Ryan when they'll go out.
 
 ## Bootstrap mode (first 2 weeks)
@@ -396,6 +391,6 @@ During bootstrap, the founder is investing 2-3 hours/day to seed the library:
 
 - Expect larger angle batches (20-30 angles per ideation session)
 - Generate more drafts per day to fill the pipeline
-- Mark high-performing pieces as `repeat_eligible: true` aggressively to give the reuse engine material quickly
+- When engagement data comes in, add `repeat_eligible: true` to give the reuse engine material quickly
 - Don’t skip core channels — the goal is to establish presence everywhere in the first two weeks (include **X + Bluesky** when Typefully is connected, plus LinkedIn, Medium, Dev.to as angles allow)
 - Ad copy generation can wait until week 3-4 (focus on organic first)

@@ -173,7 +173,7 @@ The ideal SkillsCake pitch hits all four: "Upload your skill, wait six minutes, 
 | Ad copy | `skillscake-product/marketing/ads/` | Google Ads, social ads, hooks |
 | Outreach emails | `skillscake-product/marketing/outreach/` | Founder-to-creator, beta invites |
 | Social posts | `skillscake-product/marketing/misc/` | X, Bluesky, LinkedIn, Reddit, Product Hunt (see production skill + Typefully) |
-| Content library | `skillscake-product/marketing/library/` | Published posts with frontmatter (date, channel, engagement). Source of truth for the ideation and production skills. |
+| Content library | `skillscake-product/marketing/library/` | **`library/live/`** = all shipped posts. No `*.md` at root. `library/drafts/` = WIP. `library/killed/` = rejected. Ideation mines `live/`. |
 | Content calendar | `skillscake-product/marketing/calendar/` | Angle specs from ideation sessions. Consumed by the production skill. |
 | Seeds | `skillscake-product/marketing/seeds.md` | Raw founder notes. Consumed by the ideation skill. |
 | Meta tags / SEO | `skillscake-web/app/*/page.tsx` (metadata exports) | Page titles, descriptions |

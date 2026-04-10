@@ -85,7 +85,7 @@ Never post under a personal name. Always brand accounts. No Reddit organic (ads 
 
 1. **Read seeds.md** at `skillscake-product/marketing/seeds.md`. This is a running file of raw notes the founder appends to during the day: bullet fragments, voice memo transcripts, hot takes, things that broke in prod. Some days it has 10 entries. Some days it's empty. Either way, read it.
 
-2. **Read the content library** at `skillscake-product/marketing/library/`. Every published piece is a markdown file with frontmatter. Scan all files. Pay attention to:
+2. **Read the content library** at **`skillscake-product/marketing/library/live/`**. Every shipped post is a markdown file here. Use `scheduled_for` dates and `engagement` frontmatter to judge recency and performance. **`library/drafts/`** is WIP, **`library/killed/`** is optional context. No `*.md` at `library/` root. Pay attention to:
    - What angles have been used recently (last 7-14 days)
    - What has engagement notes suggesting it performed well
    - What was posted to which channel and when
@@ -179,6 +179,7 @@ Compile everything into a structured angle list. For each angle:
 5. **Proof point** — reference to the proof table above if applicable, or new data from the session
 6. **Reuse reference** — if this is a repeat, remix, or sequel, link to the original piece in the library
 7. **Priority** — high (post today/tomorrow), medium (this week), low (backlog)
+8. **Publish window** (optional) — if the founder gives dates, put `earliest_publish` and `latest_publish` in the YAML. Production spreads drafts evenly across that window; Ryan adjusts `scheduled_for` on each draft during review.
 
 Aim for 10-30 angles per session, depending on how much material the grilling produced. Not all will be used. The production skill and Ryan's review will filter.
 
@@ -194,6 +195,8 @@ seeds_processed: 7
 angles_generated: 18
 reuse_angles: 5
 new_angles: 13
+earliest_publish: 2026-04-11
+latest_publish: 2026-04-17
 ---
 
 # Content Angles — Week of April 7, 2026
@@ -217,7 +220,7 @@ new_angles: 13
 - **Avatar:** Indie hackers
 - **Human detail:** [specific detail]
 - **Proof:** none
-- **Reuse:** remix of library/2026-03-25-cursor-rules-thread.md
+- **Reuse:** remix of library/live/2026-03-25-cursor-rules-thread.md
 - **Priority:** medium
 
 [... more angles ...]
@@ -228,7 +231,7 @@ These are verbatim or near-verbatim reposts of past content that performed well.
 
 #### Repeat 1: [original title]
 
-- **Original:** library/[filename].md
+- **Original:** library/live/[filename].md
 - **Original channel:** X
 - **Engagement:** [notes from frontmatter]
 - **Repost to:** X (same), LinkedIn (adapt for AH voice)
@@ -257,9 +260,9 @@ The grilling is the entire quality control mechanism. If the grilling is shallow
 
 ## Bootstrap mode (first 2 weeks)
 
-During bootstrap, the content library is empty or near-empty. This changes the session:
+During bootstrap, **`library/live/`** is empty or near-empty. This changes the session:
 
-- Skip library mining (Phase 3) — there's nothing to mine yet
+- Skip library mining (Phase 3) — nothing to mine yet
 - Spend more time on grilling (extend to 20-25 minutes)
 - Generate 20-30 angles per session to front-load the library
 - Mark more angles as high priority to fill the pipeline quickly

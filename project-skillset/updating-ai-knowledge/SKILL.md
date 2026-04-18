@@ -21,8 +21,9 @@ Cross-repo knowledge about tools, platforms, and workflows — things that are t
 <skills-repo>/
   project-skillset/       # workflow skills (define-project, plan-to-slices, updating-ai-knowledge, etc.)
   skillscake-skillset/    # SkillsCake marketing skills
-  external-skillset/      # optional third-party trees; not symlinked by the installer
 ```
+
+Gitignored directories under the clone can hold extra skills locally; `./setup-skills` still picks them up.
 
 Each skill directory contains a `SKILL.md` and optionally supporting files. The repo is nested for organization; loaders use a flat `~/.claude/skills/` and `~/.cursor/skills/`. After adding or moving a skill directory, run `./setup-skills` from the repo root to refresh symlinks.
 

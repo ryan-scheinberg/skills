@@ -29,7 +29,7 @@ Re-run `./setup-skills` whenever you add, move, or rename a skill directory so s
 
 - **`project-skillset/`** — project workflow skills (briefs, slices, TDD, knowledge upkeep).
 - **`skillscake-skillset/`** — SkillsCake marketing skills.
-- **`external-skillset/`** — Optional third-party or reference trees; not linked by `setup-skills` (see `.gitignore`).
+- **Gitignored paths** — Optional local-only skill trees (not in git) are still linked by `./setup-skills` when present on disk.
 
 Each skill is a directory whose **name** matches the `name:` field in `SKILL.md` and becomes the flat symlink name under `~/.claude/skills/` and `~/.cursor/skills/`.
 

@@ -10,7 +10,7 @@ From the repo root (`setup-skills` is Python 3 so it runs on macOS’s default B
 ./setup-skills
 ```
 
-This discovers every directory that contains a `SKILL.md` at any depth (skipping `.git/` and `external-skillset/`), then:
+This discovers every directory that contains a `SKILL.md` at any depth under the repo root (skipping `.git/`), including trees that are not tracked by git, then:
 
 - Creates **flat** symlinks under `~/.claude/skills/<skill-name>/` and `~/.cursor/skills/<skill-name>/`, where `<skill-name>` is the **folder name** (parent of `SKILL.md`).
 - Removes **stale** symlinks in those directories that pointed at paths under this repo (e.g. after a skill folder was removed or renamed).
@@ -22,7 +22,3 @@ Re-run after adding, moving, or renaming a skill folder. Optional: `./setup-skil
 ## Editing skills
 
 When you fix friction and the right place to capture it is a skill (cross-repo tool/platform knowledge), follow **`updating-ai-knowledge`** — especially: do not change the YAML `name:` field (it aligns with symlink names and loaders), and prefer small, evidence-based edits.
-
-## Third-party / copied skills
-
-`external-skillset/` is ignored for linking (and listed in `.gitignore`) so vendored or reference-only trees are not symlinked by mistake.

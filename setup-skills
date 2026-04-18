@@ -18,8 +18,6 @@ def main() -> int:
     for p in repo_root.rglob("SKILL.md"):
         if ".git" in p.parts:
             continue
-        if "external-skillset" in p.parts:
-            continue
         skill_dirs.append(p.parent.resolve())
 
     skill_dirs.sort(key=lambda x: str(x))

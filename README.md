@@ -1,25 +1,41 @@
-# Cursor Skills
+# Skills
 
-SOPs for agents. Reusable, composable skills for building projects top-to-bottom with AI — from napkin idea to production.
-
-## Skills
-
-| Skill | What It Does |
-|---|---|
-| `define-project` | Take a few sentences and produce a complete `PROJECT_BRIEF.md` |
-| `iterate-plan` | Challenge every assumption in an artifact until every decision is resolved |
-| `plan-to-jira` | Translate a brief into right-sized Jira tickets (epic + stories or standalone story) |
-| `complete-ticket` | Implement a Jira story end-to-end with TDD |
-
-## The Pipeline
-
-```
-define-project → iterate-plan → plan-to-jira → complete-ticket
-```
+Personal agent skills: reusable `SKILL.md` workflows for Claude Code, Cursor, and similar tooling. This repo is the **source of truth**; nested **skillset** folders keep things organized in git, while your machine uses a **flat** layout under `~/.claude/skills/` and `~/.cursor/skills/`.
 
 ## Install
 
-Clone into `~/.cursor/skills/` or copy individual skill directories there. Each skill is a directory with a `SKILL.md` that Cursor picks up automatically.
+```bash
+git clone <this-repo-url> ~/Documents/skills   # or anywhere you like
+cd ~/path/to/skills
+./setup-skills
+```
+
+Re-run `./setup-skills` whenever you add, move, or rename a skill directory so symlinks stay correct. Use `./setup-skills --dry-run` to preview.
+
+## Skills in this repo
+
+| Skill | Role |
+| --- | --- |
+| `complete-slice` | Implement a vertical slice from `SLICES.md` end-to-end with TDD |
+| `define-project` | Turn a short idea into a full `PROJECT_BRIEF.md` |
+| `iterate-plan` | Stress-test a plan or brief until decisions are settled |
+| `plan-to-slices` | Break a `PROJECT_BRIEF.md` into vertical, TDD-ready slices |
+| `updating-ai-knowledge` | When and how to update skills and repo `AGENTS.md` after friction |
+| `skillscake-marketing` | Marketing copy for SkillsCake |
+| `skillscake-marketing-ideation` | Structured marketing angles from notes and signals |
+| `skillscake-marketing-production` | Turn angles into drafts and publishing workflows |
+
+## Layout
+
+- **`project-skillset/`** — project workflow skills (briefs, slices, TDD, knowledge upkeep).
+- **`skillscake-skillset/`** — SkillsCake marketing skills.
+- **`external-skillset/`** — Optional third-party or reference trees; not linked by `setup-skills` (see `.gitignore`).
+
+Each skill is a directory whose **name** matches the `name:` field in `SKILL.md` and becomes the flat symlink name under `~/.claude/skills/` and `~/.cursor/skills/`.
+
+## Ops for agents
+
+See **`AGENTS.md`** for symlink behavior, uniqueness rules, and pointers to `updating-ai-knowledge`.
 
 ## License
 

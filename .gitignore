@@ -1,10 +1,2 @@
 # Third-party skills (not mine)
-elevenlabs-agents/
-speech-to-text/
-text-to-speech/
-frontend-design/
-skill-creator-anthropic/
-improve-skills/
-typefully
-
-.DS_Store
+external-skillset/

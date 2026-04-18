@@ -19,12 +19,12 @@ Cross-repo knowledge about tools, platforms, and workflows — things that are t
 
 ```
 <skills-repo>/
-  meta-skillset/       # skills about skills (creating, updating)
-  project-skillset/    # workflow skills (define-project, plan-to-slices, etc.)
-  tool-skillset/       # tool/platform skills (jira, gitlab, bitbucket, etc.)
+  project-skillset/       # workflow skills (define-project, plan-to-slices, updating-ai-knowledge, etc.)
+  skillscake-skillset/    # SkillsCake marketing skills
+  external-skillset/      # optional third-party trees; not symlinked by the installer
 ```
 
-Each skill directory contains a `SKILL.md` and optionally supporting files. If adding a new directory, run `./setup-skills.sh` from the repo root after to create the symlink.
+Each skill directory contains a `SKILL.md` and optionally supporting files. The repo is nested for organization; loaders use a flat `~/.claude/skills/` and `~/.cursor/skills/`. After adding or moving a skill directory, run `./setup-skills` from the repo root to refresh symlinks.
 
 **Constraints when editing a skill**:
 - Do not change the `name` field — it's tied to symlinks and the loader.

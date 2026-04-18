@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+"""
+Symlink every directory that contains a SKILL.md (at any depth) into flat
+~/.claude/skills/ and ~/.cursor/skills/. Re-run after moving or renaming skills.
+"""
+from __future__ import annotations
+
+import os
+import sys
+from pathlib import Path
+
+
+def main() -> int:
+    dry_run = "--dry-run" in sys.argv
+    repo_root = Path(__file__).resolve().parent
+
+    skill_dirs: list[Path] = []
+    for p in repo_root.rglob("SKILL.md"):
+        if ".git" in p.parts:
+            continue
+        if "external-skillset" in p.parts:
+            continue
+        skill_dirs.append(p.parent.resolve())
+
+    skill_dirs.sort(key=lambda x: str(x))
+
+    name_to_dir: dict[str, Path] = {}
+    for d in skill_dirs:
+        name = d.name
+        if name in name_to_dir:
+            print(
+                f"error: duplicate skill folder name {name!r} "
+                "(symlink target must be unique):",
+                file=sys.stderr,
+            )
+            print(f"  {name_to_dir[name]}", file=sys.stderr)
+            print(f"  {d}", file=sys.stderr)
+            return 1
+        name_to_dir[name] = d
+
+    link_roots = [
+        Path.home() / ".claude" / "skills",
+        Path.home() / ".cursor" / "skills",
+    ]
+
+    repo_s = str(repo_root)
+
+    def prune_repo_symlinks(target_dir: Path) -> None:
+        if not target_dir.is_dir():
+            return
+        for child in target_dir.iterdir():
+            if not child.is_symlink():
+                continue
+            try:
+                resolved = Path(os.path.realpath(child))
+            except OSError:
+                continue
+            s = str(resolved)
+            if s == repo_s or s.startswith(repo_s + os.sep):
+                if dry_run:
+                    print(f"would remove stale symlink: {child} -> {child.readlink()}")
+                else:
+                    child.unlink()
+
+    for td in link_roots:
+        if dry_run:
+            print(f"would mkdir -p {td}")
+        else:
+            td.mkdir(parents=True, exist_ok=True)
+        prune_repo_symlinks(td)
+        for name, src in sorted(name_to_dir.items(), key=lambda x: x[0]):
+            dest = td / name
+            if dry_run:
+                print(f"would ln -sfn {src} {dest}")
+            else:
+                dest.unlink(missing_ok=True)
+                dest.symlink_to(src, target_is_directory=True)
+
+    print(f"Linked {len(name_to_dir)} skill(s) into:")
+    for td in link_roots:
+        print(f"  {td}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

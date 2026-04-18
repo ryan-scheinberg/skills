@@ -1,6 +1,6 @@
 ---
 name: updating-ai-knowledge
-description: Guidance for updating existing Copilot skills and repo AGENTS.md files when you discover they are wrong, incomplete, or stale. Use when you've solved a problem that revealed a gap, when the user says to update a skill or AGENTS.md, or when you find a platform or API change that contradicts documented guidance. The trigger is friction; you learned something mid-task that the knowledge base should have told you.
+description: Guidance for updating agent files when you discover they are wrong, incomplete, or stale. Use when you've solved a problem that revealed a gap, when the user says to update a skill or AGENTS.md, or when you find a platform or API change that contradicts documented guidance. The trigger is friction; you learned something that the knowledge base should have told you.
 ---
 
 ## Why this matters
@@ -15,7 +15,7 @@ Cross-repo knowledge about tools, platforms, and workflows — things that are t
 
 **When**: You hit friction in any repo and the fix is about how a tool or platform works, not about how that codebase is structured. "The Jira API requires bearer auth on this instance." "GitLab template projects need the default branch set to `develop` after creation."
 
-**Where to edit**: Skills are version-controlled in a shared repo and either symlinked into `~/.copilot/skills/` or included as skills files for Copilot CLI. Check your personal `~/.copilot/copilot-instructions.md` for the exact repo path. Always edit the source git repo.
+**Where to edit**: Skills are version-controlled in ~/Documents/skills/ and symlinked into skills directories. Edit the skills/ git repo after reading its AGENTS.md
 
 ```
 <skills-repo>/
@@ -73,11 +73,6 @@ Use `replace_string_in_file` with 3–5 lines of context. Re-read the changed se
 **Write with reasoning, not just rules.** "Use `--runInBand` because tests share a database and parallel runs corrupt each other" is durable. "Always use `--runInBand`" is fragile — it breaks the moment the flag name changes or someone needs to understand why. An agent given the reasoning will apply it correctly in situations the example doesn't cover.
 
 If you find yourself reaching for all-caps emphasis or absolute prohibitions, pause and ask whether explaining the consequence would be clearer and more durable.
-
-## After editing
-
-- For skills: run `/skills reload` to pick up the change in the current CLI session.
-- For AGENTS.md: changes take effect on the next agent invocation automatically.
 
 ## Example situations
 

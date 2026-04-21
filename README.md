@@ -18,6 +18,7 @@ Re-run `./setup-skills` whenever you add, move, or rename a skill directory so s
 | --- | --- |
 | `claude-session-manager` | Spawn and manage multiple independent `--remote-control` sessions |
 | `complete-slice` | Implement a vertical slice from `SLICES.md` end-to-end with TDD |
+| `cursor-delegate` | Delegate async tasks to Composer 2 for adversarial review, alternative solutions, or independent analysis |
 | `define-project` | Turn a short idea into a full `PROJECT_BRIEF.md` |
 | `iterate-plan` | Stress-test a plan or brief until decisions are settled |
 | `plan-to-slices` | Break a `PROJECT_BRIEF.md` into vertical, TDD-ready slices |

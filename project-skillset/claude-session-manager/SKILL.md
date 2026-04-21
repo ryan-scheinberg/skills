@@ -35,3 +35,5 @@ Each spawned session:
 - Changes sync bidirectionally across terminal and remote
 
 Sessions are registered in `~/.claude/session-registry.json` — managed automatically, no manual editing needed.
+
+**Note**: Multiple dispatcher agents may spawn sessions concurrently. `list.sh` shows all registered sessions regardless of which dispatcher created them. Only clean up extra or orphaned sessions if Ryan explicitly requests it.

@@ -7,6 +7,8 @@ Spawn a Composer 2 job on a task. Runs async in background so your chat isn't bl
 
 **Important**: Composer has no session history, but will draw on agent skills. Give it full context: what branch/files to work with, what you've tried, what you want back, and where to write results. Set the workspace to the project it needs to read or edit
 
+**Parallel runs**: Spawning 2+ jobs at once is powerful—e.g., have two Composers try different approaches to the same problem, or one QA while another drafts a revision, then compare results. Wait ~2 seconds between spawns; Cursor's CLI has a startup race on its config file that can fail jobs launched in the same second
+
 ## Usage
 
 Spawn a job (returns job_id):

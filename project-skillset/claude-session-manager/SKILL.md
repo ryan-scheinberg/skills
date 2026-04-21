@@ -3,17 +3,19 @@ name: claude-session-manager
 description: Spawn and manage multiple independent Claude --remote-control sessions. Each is controllable from terminal and iOS Claude simultaneously. Use when the user wants to dispatch remote sessions.
 ---
 
-Spawn independent `claude --remote-control` sessions in Terminal windows.
+Spawn independent `claude --remote-control` sessions in Terminal windows
 
 ## Quick Start
 
-Spawn 3 sessions:
+Spawn sessions:
 
 ```bash
-bash scripts/spawn.sh Worker1 ~/project haiku
-bash scripts/spawn.sh Worker2 ~/project claude-opus-4-7[1m]
-bash scripts/spawn.sh Worker3 ~/project sonnet
+bash scripts/spawn.sh stripe-webhooks-mango ~/project
 ```
+
+## Naming
+
+Unless the user specified, use two words describing what the session is for plus one random fruit or veggie, hyphen-separated
 
 List sessions:
 
@@ -24,7 +26,7 @@ bash scripts/list.sh
 Shut down a session:
 
 ```bash
-bash scripts/shutdown.sh Worker1
+bash scripts/shutdown.sh web-qa-banana
 ```
 
 ## How it works

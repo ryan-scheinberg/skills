@@ -45,7 +45,7 @@ main() {
   if ! kill -0 "$pid" 2>/dev/null; then
     echo "Warning: process already exited — cleaning up registry"
     _reg_delete "$name"
-    osascript -e "tell application \"Terminal\" to close window id $window_id" 2>/dev/null || true
+    osascript -e "tell application \"Terminal\" to close (every window whose id is $window_id) saving no" 2>/dev/null || true
     return 0
   fi
 
@@ -68,8 +68,10 @@ main() {
     sleep 1
   fi
 
-  # Close the Terminal window
-  osascript -e "tell application \"Terminal\" to close window id $window_id" 2>/dev/null || true
+  # Exit the shell too so the window has no running process, then force-close
+  osascript -e "tell application \"Terminal\" to do script \"exit\" in tab 1 of window id $window_id" 2>/dev/null || true
+  sleep 0.5
+  osascript -e "tell application \"Terminal\" to close (every window whose id is $window_id) saving no" 2>/dev/null || true
 
   # Clean up registry
   _reg_delete "$name"

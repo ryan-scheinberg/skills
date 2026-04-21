@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Spawn a named Claude --remote-control session in a new Terminal window
-# Usage: spawn.sh <name> [workdir] [model]
+# Usage: spawn.sh <name> [workdir]
+# Model is hardcoded — update MODEL below when a new frontier model ships.
 
 set -e
 
+MODEL="claude-opus-4-7[1m]"
 REGISTRY=~/.claude/session-registry.json
 
 _reg_init() {
@@ -21,12 +23,12 @@ _reg_write() {
 }
 
 main() {
-  local name=$1 workdir=${2:-$HOME} model=${3:-haiku}
+  local name=$1 workdir=${2:-$HOME}
 
   if [[ -z "$name" ]]; then
     echo "Error: name is required"
-    echo "Usage: spawn.sh <name> [workdir] [model]"
-    echo "Example: spawn.sh Worker1 ~/project haiku"
+    echo "Usage: spawn.sh <name> [workdir]"
+    echo "Example: spawn.sh Worker1 ~/project"
     return 1
   fi
 
@@ -39,7 +41,7 @@ main() {
   window_id=$(osascript -e "
     tell application \"Terminal\"
       activate
-      do script \"cd '$workdir' && claude --remote-control -n '$name' --model '$model'\"
+      do script \"cd '$workdir' && claude --remote-control -n '$name' --model '$MODEL'\"
     end tell" | grep -oE '[0-9]+$')
 
   if [[ -z "$window_id" ]]; then
@@ -66,8 +68,8 @@ main() {
     return 1
   fi
 
-  _reg_write "$name" "$window_id" "$pid" "$workdir" "$model"
-  echo "Spawned '$name' — window=$window_id pid=$pid model=$model"
+  _reg_write "$name" "$window_id" "$pid" "$workdir" "$MODEL"
+  echo "Spawned '$name' — window=$window_id pid=$pid model=$MODEL"
 }
 
 main "$@"

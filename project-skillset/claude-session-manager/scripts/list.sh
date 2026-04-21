@@ -18,7 +18,7 @@ main() {
   fi
 
   echo "Active sessions:"
-  jq -r 'to_entries[] | "  \(.key)\t window=\(.value.window_id)  pid=\(.value.pid)  model=\(.value.model)  dir=\(.value.workdir)"' "$REGISTRY"
+  jq -r 'to_entries[] | "  \(.key)\t pid=\(.value.pid) window=\(.value.window_id) model=\(.value.model) dir=\(.value.workdir)"' "$REGISTRY"
 }
 
 main "$@"

@@ -24,9 +24,9 @@ main() {
   local name=$1
 
   if [[ -z "$name" ]]; then
-    echo "Error: name is required"
-    echo "Usage: shutdown.sh <name>"
-    echo "Example: shutdown.sh Worker1"
+    echo "Error: name is required" >&2
+    echo "Usage: shutdown.sh <name>" >&2
+    echo "Example: shutdown.sh Worker1" >&2
     return 1
   fi
 
@@ -37,39 +37,43 @@ main() {
   pid=$(_reg_get "$name" pid)
 
   if [[ -z "$window_id" || -z "$pid" ]]; then
-    echo "Error: '$name' not found in registry"
+    echo "Error: '$name' not found in registry" >&2
     return 1
   fi
 
-  # Verify PID is still a claude process
-  if ! ps -p "$pid" -o comm= 2>/dev/null | grep -q claude; then
-    echo "Warning: PID $pid for '$name' is no longer a claude process — cleaning registry only"
+  # Check if process is still alive
+  if ! kill -0 "$pid" 2>/dev/null; then
+    echo "Warning: process already exited — cleaning up registry"
     _reg_delete "$name"
+    osascript -e "tell application \"Terminal\" to close window id $window_id" 2>/dev/null || true
     return 0
   fi
 
-  echo "Shutting down '$name' (window=$window_id pid=$pid)..."
+  echo "Shutting down '$name'..."
 
-  # Send /exit to the session
-  osascript -e "tell application \"Terminal\" to do script \"/exit\" in tab 1 of window id $window_id" > /dev/null 2>&1
+  # Send /exit to gracefully exit the session
+  osascript -e "tell application \"Terminal\" to do script \"/exit\" in tab 1 of window id $window_id" 2>/dev/null || true
 
-  # Wait for process to exit (up to 10s)
+  # Wait for process to exit (up to 10 seconds)
   local i=0
   while kill -0 "$pid" 2>/dev/null && (( i < 50 )); do
-    sleep 0.2; (( i++ ))
+    sleep 0.2
+    (( i++ ))
   done
 
+  # If still running, force with SIGINT
   if kill -0 "$pid" 2>/dev/null; then
-    echo "Warning: process did not exit cleanly — sending SIGINT"
-    kill -INT "$pid"
+    echo "Warning: forcing shutdown with SIGINT"
+    kill -INT "$pid" 2>/dev/null || true
     sleep 1
   fi
 
-  # Close the window
-  osascript -e "tell application \"Terminal\" to close window id $window_id" 2>/dev/null
+  # Close the Terminal window
+  osascript -e "tell application \"Terminal\" to close window id $window_id" 2>/dev/null || true
 
+  # Clean up registry
   _reg_delete "$name"
-  echo "Done — '$name' shut down"
+  echo "Shut down '$name'"
 }
 
 main "$@"

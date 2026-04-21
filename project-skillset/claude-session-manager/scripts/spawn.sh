@@ -30,7 +30,11 @@ main() {
     return 1
   fi
 
-  # Spawn session in new Terminal window via AppleScript (always quote args)
+  # Capture existing PIDs before spawn
+  local existing_pids
+  existing_pids=$(pgrep -f "claude --remote-control" 2>/dev/null || true)
+
+  # Spawn in new Terminal window via AppleScript
   local window_id
   window_id=$(osascript -e "
     tell application \"Terminal\"
@@ -39,20 +43,26 @@ main() {
     end tell" | grep -oE '[0-9]+$')
 
   if [[ -z "$window_id" ]]; then
-    echo "Error: failed to spawn Terminal window"
+    echo "Error: failed to spawn Terminal window" >&2
     return 1
   fi
 
   sleep 5  # wait for session to initialize
 
-  # Capture PID from process list
-  local manager_pid
-  manager_pid=$(pgrep -f "claude --remote-control" | head -1)
+  # Find the newly spawned process (not in existing list)
+  local all_pids
+  all_pids=$(pgrep -f "claude --remote-control" 2>/dev/null || true)
+
   local pid
-  pid=$(pgrep -f "claude --remote-control" | grep -v "^$manager_pid$" | tail -1)
+  while IFS= read -r p; do
+    if ! grep -q "^$p$" <<< "$existing_pids"; then
+      pid=$p
+      break
+    fi
+  done < <(echo "$all_pids" | sort -rn)
 
   if [[ -z "$pid" ]]; then
-    echo "Error: could not find PID for $name"
+    echo "Error: session spawned but could not find process" >&2
     return 1
   fi
 

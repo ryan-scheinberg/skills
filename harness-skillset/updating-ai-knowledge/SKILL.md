@@ -19,7 +19,8 @@ Cross-repo knowledge about tools, platforms, and workflows — things that are t
 
 ```
 <skills-repo>/
-  project-skillset/       # workflow skills (define-project, plan-to-slices, updating-ai-knowledge, etc.)
+  project-skillset/       # project workflow skills (define-project, plan-to-slices, etc.)
+  harness-skillset/       # AI harness/workspace skills (session management, delegation, updating-ai-knowledge)
   skillscake-skillset/    # SkillsCake marketing skills
 ```
 

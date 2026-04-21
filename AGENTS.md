@@ -1,6 +1,6 @@
 # Skills repo — agent notes
 
-This repository is the **source of truth** for personal agent skills. The tree is grouped by skillset folders (e.g. `project-skillset/`, `skillscake-skillset/`), but **loaders expect a flat list of skill directories** (each directory contains a `SKILL.md`).
+This repository is the **source of truth** for personal agent skills. The tree is grouped by skillset folders (e.g. `project-skillset/`, `harness-skillset/`, `skillscake-skillset/`), but **loaders expect a flat list of skill directories** (each directory contains a `SKILL.md`).
 
 ## Install / refresh symlinks
 

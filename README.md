@@ -29,7 +29,8 @@ Re-run `./setup-skills.sh` whenever you add, move, or rename a skill directory s
 
 ## Layout
 
-- **`project-skillset/`** — project workflow skills (briefs, slices, TDD, knowledge upkeep).
+- **`project-skillset/`** — project workflow skills (briefs, slices, TDD).
+- **`harness-skillset/`** — AI harness/workspace skills (session management, delegation, knowledge upkeep).
 - **`skillscake-skillset/`** — SkillsCake marketing skills.
 - **Gitignored paths** — Optional local-only skill trees (not in git) are still linked by `./setup-skills.sh` when present on disk.
 

@@ -1,46 +1,68 @@
 #!/usr/bin/env python3
 """
-Symlink every directory that contains a SKILL.md (at any depth) into flat
-~/.claude/skills/ and ~/.cursor/skills/. Re-run after moving or renaming skills.
+Install skills into every loader that wants them:
+
+  - flat symlinks under ~/.claude/skills and ~/.cursor/skills
+      (Claude Code CLI and Cursor read from these)
+  - a built .plugin file at ./dist/user-local-skills.plugin
+      (drag into Cowork chat to install/update; Cowork installs it into its
+      plugin registry at ~/Library/Application Support/Claude/.../rpm/)
+
+Re-run after moving or renaming skills.
 """
 from __future__ import annotations
 
+import json
 import os
+import shutil
+import subprocess
 import sys
+import time
+import zipfile
 from pathlib import Path
 
+COWORK_PLUGIN_NAME = "user-local-skills"
+COWORK_PLUGIN_DESCRIPTION = (
+    "User-local skills from ~/Documents/skills, bundled for Cowork."
+)
+COWORK_PLUGIN_AUTHOR = "Ryan Scheinberg"
+DIST_DIRNAME = "dist"
 
-def main() -> int:
-    dry_run = "--dry-run" in sys.argv
-    repo_root = Path(__file__).resolve().parent
 
+def discover_skills(repo_root: Path) -> dict[str, Path]:
+    """Find every directory containing a SKILL.md, keyed by dir basename.
+
+    Skips .git and the build output dir so we never accidentally package
+    a previous build's staged copy of itself.
+    """
     skill_dirs: list[Path] = []
     for p in repo_root.rglob("SKILL.md"):
         if ".git" in p.parts:
             continue
+        if DIST_DIRNAME in p.parts:
+            continue
         skill_dirs.append(p.parent.resolve())
-
     skill_dirs.sort(key=lambda x: str(x))
 
     name_to_dir: dict[str, Path] = {}
     for d in skill_dirs:
         name = d.name
         if name in name_to_dir:
-            print(
-                f"error: duplicate skill folder name {name!r} "
-                "(symlink target must be unique):",
-                file=sys.stderr,
+            raise RuntimeError(
+                f"duplicate skill folder name {name!r} (must be unique):\n"
+                f"  {name_to_dir[name]}\n  {d}"
             )
-            print(f"  {name_to_dir[name]}", file=sys.stderr)
-            print(f"  {d}", file=sys.stderr)
-            return 1
         name_to_dir[name] = d
+    return name_to_dir
 
+
+def install_symlinks(
+    name_to_dir: dict[str, Path], repo_root: Path, dry_run: bool
+) -> list[Path]:
     link_roots = [
         Path.home() / ".claude" / "skills",
         Path.home() / ".cursor" / "skills",
     ]
-
     repo_s = str(repo_root)
 
     def prune_repo_symlinks(target_dir: Path) -> None:
@@ -66,17 +88,120 @@ def main() -> int:
         else:
             td.mkdir(parents=True, exist_ok=True)
         prune_repo_symlinks(td)
-        for name, src in sorted(name_to_dir.items(), key=lambda x: x[0]):
+        for name, src in sorted(name_to_dir.items()):
             dest = td / name
             if dry_run:
                 print(f"would ln -sfn {src} {dest}")
             else:
                 dest.unlink(missing_ok=True)
                 dest.symlink_to(src, target_is_directory=True)
+    return link_roots
 
-    print(f"Linked {len(name_to_dir)} skill(s) into:")
-    for td in link_roots:
-        print(f"  {td}")
+
+def build_cowork_plugin(
+    name_to_dir: dict[str, Path], repo_root: Path, dry_run: bool
+) -> Path:
+    """Stage the plugin dir layout required by Cowork and zip it to a .plugin file."""
+    dist_dir = repo_root / DIST_DIRNAME
+    plugin_file = dist_dir / f"{COWORK_PLUGIN_NAME}.plugin"
+    stage_dir = dist_dir / f".stage-{COWORK_PLUGIN_NAME}"
+    # Include a timestamp in the version so re-installs are always treated as
+    # updates rather than no-ops by the Cowork installer.
+    version = f"0.1.{int(time.time())}"
+
+    if dry_run:
+        print(
+            f"would build {plugin_file} "
+            f"(name={COWORK_PLUGIN_NAME}, version={version}, "
+            f"{len(name_to_dir)} skills)"
+        )
+        return plugin_file
+
+    dist_dir.mkdir(exist_ok=True)
+    if stage_dir.exists():
+        shutil.rmtree(stage_dir)
+    stage_dir.mkdir(parents=True)
+
+    # Manifest
+    (stage_dir / ".claude-plugin").mkdir()
+    manifest = {
+        "name": COWORK_PLUGIN_NAME,
+        "version": version,
+        "description": COWORK_PLUGIN_DESCRIPTION,
+        "author": {"name": COWORK_PLUGIN_AUTHOR},
+    }
+    (stage_dir / ".claude-plugin" / "plugin.json").write_text(
+        json.dumps(manifest, indent=2) + "\n"
+    )
+
+    # Copy each skill dir (resolving symlinks) into skills/<name>/.
+    # Cowork extracts the .plugin into its registry, so symlinks wouldn't
+    # survive the move — we need real files in the archive.
+    skills_stage = stage_dir / "skills"
+    skills_stage.mkdir()
+    for name, src in sorted(name_to_dir.items()):
+        shutil.copytree(
+            src,
+            skills_stage / name,
+            symlinks=False,
+            ignore=shutil.ignore_patterns(
+                "__pycache__", ".DS_Store", "*.pyc", ".pytest_cache"
+            ),
+        )
+
+    # Zip to .plugin. Prefer the zip binary (friendlier to macOS extract
+    # quirks), fall back to zipfile if missing.
+    plugin_file.unlink(missing_ok=True)
+    zip_bin = shutil.which("zip")
+    if zip_bin:
+        subprocess.run(
+            [zip_bin, "-r", "-q", str(plugin_file), "."],
+            check=True,
+            cwd=str(stage_dir),
+        )
+    else:
+        with zipfile.ZipFile(plugin_file, "w", zipfile.ZIP_DEFLATED) as zf:
+            for root, _, files in os.walk(stage_dir):
+                for f in files:
+                    abs_f = Path(root) / f
+                    zf.write(abs_f, abs_f.relative_to(stage_dir))
+
+    shutil.rmtree(stage_dir)
+    return plugin_file
+
+
+def main() -> int:
+    dry_run = "--dry-run" in sys.argv
+    skip_symlinks = "--no-symlinks" in sys.argv
+    skip_plugin = "--no-plugin" in sys.argv
+    repo_root = Path(__file__).resolve().parent
+
+    try:
+        name_to_dir = discover_skills(repo_root)
+    except RuntimeError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 1
+
+    link_roots: list[Path] = []
+    if not skip_symlinks:
+        link_roots = install_symlinks(name_to_dir, repo_root, dry_run)
+
+    plugin_file: Path | None = None
+    if not skip_plugin:
+        plugin_file = build_cowork_plugin(name_to_dir, repo_root, dry_run)
+
+    print(f"Installed {len(name_to_dir)} skill(s).")
+    if link_roots:
+        print("Symlinked into:")
+        for td in link_roots:
+            print(f"  {td}")
+    if plugin_file is not None:
+        print(f"Built Cowork plugin: {plugin_file}")
+        print(
+            "note: drag the .plugin file into Cowork chat (or re-deliver via "
+            "outputs/) to install/update.",
+            file=sys.stderr,
+        )
     return 0
 
 

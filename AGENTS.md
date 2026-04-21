@@ -22,3 +22,5 @@ Re-run after adding, moving, or renaming a skill folder. Optional: `./setup-skil
 ## Editing skills
 
 When you fix friction and the right place to capture it is a skill (cross-repo tool/platform knowledge), follow **`updating-ai-knowledge`** — especially: do not change the YAML `name:` field (it aligns with symlink names and loaders), and prefer small, evidence-based edits.
+
+**Always keep README.md in sync** with new skills and major changes. The README is the canonical reference for available skillsets.

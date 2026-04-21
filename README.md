@@ -16,6 +16,7 @@ Re-run `./setup-skills` whenever you add, move, or rename a skill directory so s
 
 | Skill | Role |
 | --- | --- |
+| `claude-session-manager` | Spawn and manage multiple independent `--remote-control` sessions |
 | `complete-slice` | Implement a vertical slice from `SLICES.md` end-to-end with TDD |
 | `define-project` | Turn a short idea into a full `PROJECT_BRIEF.md` |
 | `iterate-plan` | Stress-test a plan or brief until decisions are settled |

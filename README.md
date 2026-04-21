@@ -7,10 +7,10 @@ Personal agent skills: reusable `SKILL.md` workflows for Claude Code, Cursor, an
 ```bash
 git clone <this-repo-url> ~/Documents/skills   # or anywhere you like
 cd ~/path/to/skills
-./setup-skills
+./setup-skills.sh
 ```
 
-Re-run `./setup-skills` whenever you add, move, or rename a skill directory so symlinks stay correct. Use `./setup-skills --dry-run` to preview.
+Re-run `./setup-skills.sh` whenever you add, move, or rename a skill directory so symlinks stay correct.
 
 ## Skills in this repo
 
@@ -31,7 +31,7 @@ Re-run `./setup-skills` whenever you add, move, or rename a skill directory so s
 
 - **`project-skillset/`** — project workflow skills (briefs, slices, TDD, knowledge upkeep).
 - **`skillscake-skillset/`** — SkillsCake marketing skills.
-- **Gitignored paths** — Optional local-only skill trees (not in git) are still linked by `./setup-skills` when present on disk.
+- **Gitignored paths** — Optional local-only skill trees (not in git) are still linked by `./setup-skills.sh` when present on disk.
 
 Each skill is a directory whose **name** matches the `name:` field in `SKILL.md` and becomes the flat symlink name under `~/.claude/skills/` and `~/.cursor/skills/`.
 

@@ -23,9 +23,9 @@ Cross-repo knowledge about tools, platforms, and workflows — things that are t
   skillscake-skillset/    # SkillsCake marketing skills
 ```
 
-Gitignored directories under the clone can hold extra skills locally; `./setup-skills` still picks them up.
+Gitignored directories under the clone can hold extra skills locally; `./setup-skills.sh` still picks them up.
 
-Each skill directory contains a `SKILL.md` and optionally supporting files. The repo is nested for organization; loaders use a flat `~/.claude/skills/` and `~/.cursor/skills/`. After adding or moving a skill directory, run `./setup-skills` from the repo root to refresh symlinks.
+Each skill directory contains a `SKILL.md` and optionally supporting files. The repo is nested for organization; loaders use a flat `~/.claude/skills/` and `~/.cursor/skills/`. After adding or moving a skill directory, run `./setup-skills.sh` from the repo root to refresh symlinks.
 
 **Constraints when editing a skill**:
 - Do not change the `name` field — it's tied to symlinks and the loader.

@@ -1,86 +1,36 @@
 ---
 name: updating-ai-knowledge
-description: Guidance for updating agent files when you discover they are wrong, incomplete, or stale. Use when you've solved a problem that revealed a gap, when the user says to update a skill or AGENTS.md, or when you find a platform or API change that contradicts documented guidance. The trigger is friction; you learned something that the knowledge base should have told you.
+description: Guidance for updating agent files when you discover they are wrong, incomplete, or stale. Use when you've solved a problem that revealed a gap or when the user says to update a skill or AGENTS.md. The trigger is friction; you learned something that the knowledge base should have told you.
 ---
 
-## Why this matters
+## The friction
 
-A skill or AGENTS.md gets read by agents across many sessions. One wrong fact wastes time every time it fires. One clean correction pays forward to every future agent. That's why updates should be small, precise, and grounded in what you actually observed — not speculative improvements or wholesale rewrites.
+You hit something the knowledge base should have warned you about. Before editing anything, articulate the gap in one sentence: *"This file says X, but the correct behavior is Y."* If you can't say that yet, you don't have the fix yet — synthesize from what the session already produced.
 
-## Two knowledge layers
+## Where it belongs
 
-### Personal skills
+Ask: *"Would this be true if I were working in a different repo?"*
 
-Cross-repo knowledge about tools, platforms, and workflows — things that are true regardless of which project you're working in.
+- **Yes** → a personal skill in git repo `~/Documents/skills/`, grouped by skillset folder (`project-skillset/`, `harness-skillset/`, `skillscake-skillset/`). Run `./setup-skills.sh` to update symlinks after adding or moving a skill directory.
+- **No** → `AGENTS.md` at the affected repo root. Nearest file wins; most agents read it automatically.
 
-**When**: You hit friction in any repo and the fix is about how a tool or platform works, not about how that codebase is structured. "The Jira API requires bearer auth on this instance." "GitLab template projects need the default branch set to `develop` after creation."
+## Making the edit
 
-**Where to edit**: Skills are version-controlled in ~/Documents/skills/ and symlinked into skills directories. Edit the skills/ git repo after reading its AGENTS.md
+**Read the full skill directory or `AGENTS.md` file first.** Then make the smallest edit that closes the gap. Preserve everything accurate. Restructure only if the structure itself caused the confusion.
 
-```
-<skills-repo>/
-  project-skillset/       # project workflow skills (define-project, plan-to-slices, etc.)
-  harness-skillset/       # AI harness/workspace skills (session management, delegation, updating-ai-knowledge)
-  skillscake-skillset/    # SkillsCake marketing skills
-```
+**Write with reasoning, not just rules.** *"Use `--runInBand` because tests share a database and parallel runs corrupt each other"* is durable. *"Always use `--runInBand`"* is fragile — it breaks the moment the flag name changes or someone needs to know why. Reasoning survives cases your example doesn't cover.
 
-Gitignored directories under the clone can hold extra skills locally; `./setup-skills.sh` still picks them up.
+If you reach for all-caps emphasis or absolute prohibitions, pause and ask whether explaining the consequence would be clearer.
 
-Each skill directory contains a `SKILL.md` and optionally supporting files. The repo is nested for organization; loaders use a flat `~/.claude/skills/` and `~/.cursor/skills/`. After adding or moving a skill directory, run `./setup-skills.sh` from the repo root to refresh symlinks.
+## Skill constraints
 
-**Constraints when editing a skill**:
-- Do not change the `name` field — it's tied to symlinks and the loader.
-- Update the `description` only if it causes incorrect triggering (firing when it shouldn't, or not firing when it should).
+- Don't change the `name:` field — it's tied to symlinks and the loader.
+- Update `description:` only if triggering is wrong (fires when it shouldn't, or doesn't fire when it should).
 
-### AGENTS.md (repo-level)
+## Example calls
 
-Project-specific context that every agent needs to work effectively in a given repository. The standard (from agents.md, now under the Linux Foundation's Agentic AI Foundation) is a plain Markdown file at the repo root — no required fields, just what helps an agent work without re-exploring from scratch.
-
-**When**: You discovered something repo-specific that cost you time. A build step that requires a non-obvious prerequisite. A test flag that's always needed. A convention the codebase follows that isn't obvious from the code. If stating it in AGENTS.md would have saved you the detour, it belongs there.
-
-**What goes in it** (the most useful sections):
-- Setup and build commands — exact commands, in order, with known failure modes noted
-- Test commands — how to run the suite, how to run a single test
-- Code style and conventions — patterns the codebase enforces
-- Architecture overview — key directories and what lives where
-- PR / commit conventions — title formats, pre-commit checks required
-- Security or deployment gotchas
-
-**How it works**: The nearest `AGENTS.md` in the directory tree takes precedence. Agents (Copilot, Claude, Cursor, Gemini CLI, Devin, and most others) read it automatically. Agents will actually attempt to run commands listed in it. Explicit user instructions override it.
-
-**Constraints**: Treat it as living documentation. Keep it focused on what an agent needs, not what a human contributor needs (that's what README is for).
-
-## How to choose between them
-
-"Would this be true if I were working in a different repo?"
-- **Yes** → personal skill
-- **No** → AGENTS.md in the affected repo
-
-## Finding the minimal true fact
-
-Before editing anything, articulate the gap in one sentence: "This file says X, but the correct behaviour is Y." If you can't say that yet, synthesize from what the session already produced:
-
-- **Terminal / command history** — what failed or needed correcting?
-- **Chat history** — what did you have to figure out that should have been documented?
-- **Codebase** — do existing patterns contradict the guidance?
-- **External docs** — has a dependency, API, or platform changed?
-
-## Making and writing the change
-
-Read the full file first. Then make the smallest edit that closes the gap — one fact, one correction, one example. Preserve everything accurate. Restructure only if the structure itself caused confusion.
-
-Use `replace_string_in_file` with 3–5 lines of context. Re-read the changed section after editing to confirm it flows naturally in context.
-
-**Write with reasoning, not just rules.** "Use `--runInBand` because tests share a database and parallel runs corrupt each other" is durable. "Always use `--runInBand`" is fragile — it breaks the moment the flag name changes or someone needs to understand why. An agent given the reasoning will apply it correctly in situations the example doesn't cover.
-
-If you find yourself reaching for all-caps emphasis or absolute prohibitions, pause and ask whether explaining the consequence would be clearer and more durable.
-
-## Example situations
-
-- The Jira skill has a wrong field name → update the skill.
-- This repo requires `npm ci` before tests run but the AGENTS.md doesn't say so → update AGENTS.md.
-- A Terraform module changed its variable interface → update the terraform skill.
-- The GitLab skill is missing the default branch step → update the skill.
-- Build kept failing because of an undocumented env var → add it to AGENTS.md.
-- The iterate-plan skill kept asking shallow clarifying questions and missed the core trade-off you had to resolve manually → update the skill with what kind of questions actually surface the hard decisions.
-- The complete-slice skill didn't enforce the red-green cycle — it wrote passing tests and code together → update the skill to make the TDD sequence explicit and explain why the order matters.
+- Jira skill has a wrong field name → skill.
+- Repo needs `npm ci` before tests but `AGENTS.md` doesn't say so → AGENTS.md.
+- Terraform module changed its variable interface → skill.
+- Build kept failing because of an undocumented env var → AGENTS.md.
+- `iterate-plan` asked shallow clarifying questions and missed the real trade-off → skill (what kinds of questions surface hard decisions).

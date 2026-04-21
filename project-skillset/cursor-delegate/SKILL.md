@@ -3,7 +3,7 @@ name: cursor-delegate
 description: Delegate tasks to Composer 2 agent. Use this different model to code, QA, attack your design, catch blind spots, or explore alternatives.
 ---
 
-Spawn a Composer 2 job on a task. Runs async in background so your chat isn't blocked. Max 2 concurrent jobs per Claude session
+Spawn a Composer 2 job on a task. Runs async in background so your chat isn't blocked. There is a max of 4 agents between you and other delegators; extra and `delegate.sh` fails with a clear error; do other work or wait for a job to finish, then retry
 
 **Important**: Composer has no session history, but will draw on agent skills. Give it full context: what branch/files to work with, what you've tried, what you want back, and where to write results. Set the workspace to the project it needs to read or edit
 
@@ -20,7 +20,7 @@ Poll for results:
 bash scripts/status.sh cursor-1234567890-5678
 ```
 
-List your active jobs:
+List all jobs:
 ```bash
 bash scripts/list.sh
 ```
@@ -31,4 +31,4 @@ bash scripts/list.sh
 - Output streams to `/tmp/cursor-delegate-<job_id>.log`
 - `status.sh` returns `running` or `done` + full JSON output
 - Jobs end on their own (no shutdown needed)
-- Registry at `~/.claude/cursor-registry.json` tracks jobs per Claude session (identified by the ancestor `claude` process PID, found by walking the process tree). Do not manually edit unless asked
+- Registry at `~/.claude/cursor-registry.json` tracks jobs globally. Do not manually edit unless asked

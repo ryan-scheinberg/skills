@@ -4,31 +4,33 @@
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/_session.sh"
-
 REGISTRY=~/.claude/cursor-registry.json
-MAX_PER_SESSION=2
+MAX_CONCURRENT=4
 
 _reg_init() {
   [[ -f "$REGISTRY" ]] || echo '{}' > "$REGISTRY"
 }
 
 _count_active() {
-  local session=$1
-  jq --arg s "$session" \
-     '[.[] | select(.claude_session == $s and .status == "running")] | length' \
-     "$REGISTRY"
+  # Count jobs still running (process alive)
+  local count=0
+  while IFS= read -r pid; do
+    [[ -z "$pid" ]] && continue
+    if kill -0 "$pid" 2>/dev/null; then
+      count=$((count+1))
+    fi
+  done < <(jq -r '.[].pid' "$REGISTRY" 2>/dev/null)
+  echo "$count"
 }
 
 _reg_write() {
-  local job_id=$1 session=$2 pid=$3 workspace=$4 task=$5 log_file=$6
+  local job_id=$1 pid=$2 workspace=$3 task=$4 log_file=$5
   local tmp
   tmp=$(mktemp)
-  jq --arg j "$job_id" --arg s "$session" --argjson p "$pid" \
+  jq --arg j "$job_id" --argjson p "$pid" \
      --arg w "$workspace" --arg t "$task" --arg l "$log_file" \
      --arg ts "$(date -u +%FT%TZ)" \
-     '.[$j] = {claude_session: $s, pid: $p, workspace: $w, task: $t, log_file: $l, started: $ts, status: "running"}' \
+     '.[$j] = {pid: $p, workspace: $w, task: $t, log_file: $l, started: $ts, status: "running"}' \
      "$REGISTRY" > "$tmp" && mv "$tmp" "$REGISTRY"
 }
 
@@ -43,13 +45,10 @@ main() {
 
   _reg_init
 
-  local session
-  session=$(_claude_session_id)
-
   local active
-  active=$(_count_active "$session")
-  if (( active >= MAX_PER_SESSION )); then
-    echo "Error: $active active jobs (max $MAX_PER_SESSION per Claude session)" >&2
+  active=$(_count_active)
+  if (( active >= MAX_CONCURRENT )); then
+    echo "Error: $active cursor jobs running (max $MAX_CONCURRENT). Do something else or wait." >&2
     echo "Check: bash scripts/list.sh" >&2
     return 1
   fi
@@ -67,7 +66,7 @@ main() {
   local pid=$!
   disown
 
-  _reg_write "$job_id" "$session" "$pid" "$workspace" "$task" "$log_file"
+  _reg_write "$job_id" "$pid" "$workspace" "$task" "$log_file"
   echo "Spawned $job_id (pid=$pid)"
   echo "Check: bash scripts/status.sh $job_id"
 }

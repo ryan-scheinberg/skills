@@ -31,4 +31,4 @@ bash scripts/list.sh
 - Output streams to `/tmp/cursor-delegate-<job_id>.log`
 - `status.sh` returns `running` or `done` + full JSON output
 - Jobs end on their own (no shutdown needed)
-- Registry at `~/.claude/cursor-registry.json` tracks jobs per Claude session (via `$PPID`). Do not manually edit unless asked
+- Registry at `~/.claude/cursor-registry.json` tracks jobs per Claude session (resolved by walking the process tree to the ancestor `claude` process). Do not manually edit unless asked
